@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # shadcn/ui monorepo template
 
 This template is for creating a monorepo with shadcn/ui.
@@ -29,3 +30,6 @@ To use the components in your app, import them from the `ui` package.
 ```tsx
 import { Button } from "@workspace/ui/components/button"
 ```
+=======
+# facundia
+>>>>>>> 3a5f668f7bb2704aecfc354b2404fa752b3b43e5
