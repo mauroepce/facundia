@@ -7,6 +7,7 @@ import {
   Check,
   ClipboardCopy,
   Edit,
+  HelpCircle,
   Lightbulb,
   MessageSquare,
   Paperclip,
@@ -17,19 +18,9 @@ import {
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Separator } from "@workspace/ui/components/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
@@ -725,107 +716,76 @@ export function ChatInterface() {
       {/* Área de entrada y acciones */}
       <div className="border-t p-4 bg-background sticky bottom-0 z-10">
         <div className="max-w-3xl mx-auto space-y-4">
-          <Tabs defaultValue="message">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="message">Mensaje</TabsTrigger>
-              <TabsTrigger value="paste">Pegar Conversación</TabsTrigger>
-            </TabsList>
-            <TabsContent value="message" className="space-y-4">
-              <Textarea
-                placeholder="Escribe un mensaje o pregunta a la IA..."
-                className="min-h-24 resize-none"
-                value={inputValue}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInputValue(e.target.value)}
-              />
-              <div className="flex justify-between">
-                <div className="flex gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Agregar Contexto
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Agregar Nota de Contexto</DialogTitle>
-                        <DialogDescription>
-                          Añade información relevante sobre la conversación o la persona.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <Textarea
-                        placeholder="Ej: Hoy es su cumpleaños, Mencionó que le gusta el jazz..."
-                        className="min-h-24"
-                        value={noteContent}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNoteContent(e.target.value)}
-                      />
-                      <DialogFooter>
-                        <Button
-                          onClick={() => {
-                            if (noteContent.trim()) {
-                              const newNote: NoteType = {
-                                id: `note${Date.now()}`,
-                                content: noteContent,
-                                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                              }
-                              setNotes([...notes, newNote])
-                              setNoteContent("")
-                            }
-                          }}
-                        >
-                          Guardar Nota
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={proposeMessage}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Proponer Mensaje
+          <div className="relative">
+            <Textarea
+              placeholder={`Mauro: Hoy estuve enfocado en mis proyectos\nDani: Que genial yo también estuve poniéndome al día con mis cosas personales`}
+              className="min-h-32 resize-none pr-10"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+
+            {/* Icono de ayuda en la esquina superior derecha del textarea */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                  <Button onClick={analyzeConversation}>
-                    <Send className="mr-2 h-4 w-4" />
-                    Enviar
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="paste" className="space-y-4">
-              <Textarea
-                placeholder="Pega aquí la transcripción de tu conversación..."
-                className="min-h-32 resize-none"
-                value={inputValue}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInputValue(e.target.value)}
-              />
-              <div className="flex justify-between">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" onClick={handleFileClick}>
-                        <Paperclip className="mr-2 h-4 w-4" />
-                        Adjuntar archivo
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Adjunta un archivo .txt o Word con tu conversación</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <Button onClick={analyzeConversation}>
-                  <Send className="mr-2 h-4 w-4" />
-                  Analizar Conversación
-                </Button>
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept=".txt,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                onChange={handleFileChange}
-              />
-            </TabsContent>
-          </Tabs>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <div className="space-y-2">
+                    <p className="font-medium">Formato correcto para análisis:</p>
+                    <div className="bg-muted p-2 rounded text-xs">
+                      <p>Mauro: Hoy estuve enfocado en mis proyectos</p>
+                      <p>Dani: Que genial yo también estuve poniéndome al día con mis cosas personales</p>
+                    </div>
+                    <p className="text-xs">
+                      Para archivos más extensos exportados de WhatsApp, Telegram, etc., utiliza el botón "Adjuntar
+                      archivo" para que sean analizados automáticamente.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className="flex justify-between">
+            <div className="flex gap-2">
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={handleFileClick}>
+                      <Paperclip className="mr-2 h-4 w-4" />
+                      Adjuntar archivo
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Adjunta un archivo .txt o Word con tu conversación</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={proposeMessage}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Proponer Mensaje
+              </Button>
+              <Button onClick={analyzeConversation}>
+                <Send className="mr-2 h-4 w-4" />
+                Enviar
+              </Button>
+            </div>
+          </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept=".txt,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={handleFileChange}
+          />
         </div>
       </div>
     </div>
